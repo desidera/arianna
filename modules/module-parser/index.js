@@ -2,14 +2,7 @@
 const STANDARD_IMPORT = -1
 const IMPORT_META = -2
 
-let import_write_head = null
-let import_write_head_last = null
-let export_write_head = null
-
-let import_list = []
-let export_list = []
-
-let punctuators = {
+const punctuators = {
   '!': true,
   '%': true,
   '&': true,
@@ -36,7 +29,7 @@ let punctuators = {
   '~': true
 }
 
-let expression_punctuators = {
+const expression_punctuators = {
   '!': true,
   '%': true,
   '&': true,
@@ -60,6 +53,13 @@ let expression_punctuators = {
 }
 
 export default function parse (source) {
+  let import_write_head = null
+  let import_write_head_last = null
+  let export_write_head = null
+
+  let imports_list = []
+  let exports_list = []
+
   let pos = -1
   let end = source.length
   let source_end = end
@@ -157,7 +157,7 @@ export default function parse (source) {
     current_import.next = null
     current_import.statement = source.substring(statement_start, statement_end)
 
-    import_list.push(current_import)
+    imports_list.push(current_import)
   }
 
   function add_export (start, end) {
@@ -173,7 +173,7 @@ export default function parse (source) {
     current_export.next = null
     current_export.statement = source.substring(start, end)
 
-    export_list.push(current_export)
+    exports_list.push(current_export)
   }
 
   function main_parse () {
@@ -295,7 +295,7 @@ export default function parse (source) {
       }
     }
 
-    lastTokenPos = pos
+    last_token_pos = pos
   }
 
   function try_parse_import_statement () {
@@ -303,7 +303,7 @@ export default function parse (source) {
 
     pos += 6
 
-    ch = comment_whitespace()
+    let ch = comment_whitespace()
 
     // dynamic import
     if (ch == '(') {
@@ -608,6 +608,8 @@ export default function parse (source) {
     while (pos++ < end) {
       let ch = source[pos]
       if (ch == '"') {
+        //close quote and return
+        // pos++
         return
       }
       if (ch == '\\') {
@@ -883,12 +885,16 @@ export default function parse (source) {
   }
 
   function syntax_error () {
+    console.warn('syntax error!')
     has_error = true
     pos = end + 1
   }
 
   function exit (ok) {
-    return { ok, import_list, export_list }
+    if (!ok) {
+      console.warn('something went wrong!')
+    }
+    return [imports_list, exports_list]
   }
 
   if (has_error) {

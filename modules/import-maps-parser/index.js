@@ -5,7 +5,7 @@ export default function parse (input, base_url) {
     throw new TypeError('Import map JSON must be an object.')
   }
 
-  if (!(baseURL instanceof URL)) {
+  if (!(base_url instanceof URL)) {
     throw new TypeError('Missing base URL or base URL is not a URL')
   }
 
@@ -41,7 +41,7 @@ export default function parse (input, base_url) {
   return import_maps
 }
 
-sort_and_normalize_specifier_map (obj, base_url) {
+function sort_and_normalize_specifier_map (obj, base_url) {
   if (!is_object(obj)) {
     return
   }
@@ -82,7 +82,7 @@ sort_and_normalize_specifier_map (obj, base_url) {
   }
 
   let sorted_normalized = {}
-  let sorted_keys = Object.keys(normalized).sort(_compare_keys)
+  let sorted_keys = Object.keys(normalized).sort(compare_keys)
   for (let key of sorted_keys) {
     sorted_normalized[key] = normalized[key]
   }
@@ -90,7 +90,7 @@ sort_and_normalize_specifier_map (obj, base_url) {
   return sorted_normalized
 }
 
-sort_and_normalize_scopes (obj, base_url) {
+function sort_and_normalize_scopes (obj, base_url) {
   const normalized = {}
   for (let scope_prefix in obj) {
     let potential_specifier_map = obj[scope_prefix]
@@ -111,7 +111,7 @@ sort_and_normalize_scopes (obj, base_url) {
   }
 
   let sorted_normalized = {}
-  let sorted_keys = Object.keys(normalized).sort(_compare_keys)
+  let sorted_keys = Object.keys(normalized).sort(compare_keys)
   for (let key of sorted_keys) {
     sorted_normalized[key] = normalized[key]
   }
@@ -119,7 +119,7 @@ sort_and_normalize_scopes (obj, base_url) {
   return sorted_normalized
 }
 
-function _normalize_specifier_key (specifier_key, base_url) {
+function normalize_specifier_key (specifier_key, base_url) {
   if (specifier_key === '') {
     console.warn(`Invalid empty string specifier key.`)
     return undefined
@@ -133,7 +133,7 @@ function _normalize_specifier_key (specifier_key, base_url) {
   return specifier_key
 }
 
-function _compare_keys (a, b) {
+function compare_keys (a, b) {
   if (a > b) {
     return -1
   }
